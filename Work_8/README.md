@@ -1,147 +1,60 @@
-# 实验报告
+# 实验八 事务处理和视图
 
-## 一、事务处理
+## 一、实验目的
 
-### 1. isolation 设置为 read uncommited时，脏读的情况
+1. 理解事务的概念和 ACID 特性
+2. 掌握事务的基本操作(开始、提交、回滚)
+3. 理解事务隔离级别及其影响
+4. 掌握视图的创建和使用方法
 
-```sql
-#  建立两个连接
--- 连接A
-# 1. isolation 设置为 read uncommited时，脏读的情况
-## 1) 在一个连接A中，设置transaction isolation 设置为 read-uncommited
-SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-START TRANSACTION;
-## 2)连接A中开始事务，显示employees表中所有员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
+## 二、实验内容
 
--- 连接B
-## 3)在另一个连接B中，取消自动提交set @@autocommit=0，在employees表插入一条记录
-SET @@autocommit = 0;
-INSERT INTO employees VALUES ('999999','测试','博士','1990-01-01',1,5,'测试地址','12345678','1');
+### 一、事务处理
 
--- 连接A
-## 4)在连接A中显示employees表的员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
+通过以下场景理解不同隔离级别下的事务行为：
 
--- 连接B
-## 5)在连接B中回滚事务
-ROLLBACK;
+#### 场景一：脏读问题
+1. 打开两个 MySQL 客户端(事务 A 和事务 B)
+2. 设置事务 B 的隔离级别为 READ UNCOMMITTED
+3. 事务 A 开始事务,修改某员工工资但不提交
+4. 事务 B 读取该员工工资,观察是否能读到未提交的数据
+5. 事务 A 回滚
+6. 事务 B 再次读取,观察数据变化
 
--- 连接A
-## 6)在连接A再次显示employees表中所有员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
-## 7)在连接A提交事务
-COMMIT;
-```
+#### 场景二：不可重复读问题
+1. 设置事务 B 的隔离级别为 READ COMMITTED
+2. 事务 B 开始事务并读取某员工工资
+3. 事务 A 修改该员工工资并提交
+4. 事务 B 在同一事务中再次读取该员工工资,观察数据是否一致
 
-### 2.观察 @@transaction_isolation 设置为 read-commited时，不可重复读的情况
+#### 场景三：幻读问题
+1. 设置事务 B 的隔离级别为 REPEATABLE READ
+2. 事务 B 开始事务并查询某部门的员工数量
+3. 事务 A 向该部门插入一名新员工并提交
+4. 事务 B 再次查询该部门员工数量,观察结果
 
-```sql
--- 连接A
-## 1)在一个连接A中，设置transaction isolation 设置为 read-commited
-SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-START TRANSACTION;
-## 2)连接A中开始事务，显示employees表中所有员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
+#### 场景四：串行化隔离
+1. 设置事务 B 的隔离级别为 SERIALIZABLE
+2. 重复场景三的操作,观察事务的执行情况
 
--- 连接B
-## 3)在另一个连接B中，自动提交set @@autocommit=0，在employees表插入一条记录
-SET @@autocommit = 0;
-INSERT INTO employees VALUES ('999999','测试','博士','1990-01-01',1,5,'测试地址','12345678','1');
+---
 
--- 连接A
-## 4)在连接A中显示employees表的员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
+### 二、视图
 
--- 连接B
-## 5)在连接B中回滚事务
-ROLLBACK;
+#### 1. 创建简单视图
+创建一个视图,显示所有员工的编号、姓名和部门名称
 
--- 连接A
-## 6)在连接A中显示employees表的员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
+#### 2. 创建带条件的视图
+创建一个视图,显示收入大于 2500 的员工信息
 
--- 连接B
-## 7)在另一个连接B中，在employees表再插入记录，并提交
-INSERT INTO employees VALUES ('999999','测试','博士','1990-01-01',1,5,'测试地址','12345678','1');
-COMMIT;
+#### 3. 创建带计算列的视图
+创建一个视图,显示员工的编号、姓名和实际收入(收入-支出)
 
--- 连接A
-## 8)在连接A中显示employees表的员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
-## 9)在连接A提交事务
-COMMIT;
-```
+#### 4. 创建带聚合函数的视图
+创建一个视图,显示各部门的部门名称、员工人数和平均工资
 
-### 3.观察 transaction_isolation 设置为 repeatable read时，幻读的情况
+#### 5. 通过视图修改数据
+通过简单视图修改员工的姓名,观察基表数据的变化
 
-```sql
--- 连接A
-## 1)在一个连接A中，设置transaction isolation 设置为 repeatable-read
-SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-## 2)开始事务，显示employees表中所有员工信息，观察记录的数目
-START TRANSACTION;
-SELECT COUNT(*) FROM employees;
-
--- 连接B
-## 3)在另一个连接B中，自动提交set @@autocommit=1，在employees表插入一条记录
-SET @@autocommit = 1;
-INSERT INTO employees VALUES ('888888','测试2','硕士','1995-05-05',0,2,'新地址','87654321','2');
-
--- 连接A
-## 4)在连接A中显示employees表的员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
-## 5)在连接A中提交事务
-COMMIT;
-
--- 提交后查看
-## 6)在连接A再次显示employees表中所有员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
-```
-
-### 4.观察 transaction isolation 设置为 serializable时的情况
-
-```sql
--- 连接A
-## 1)在一个连接A中，transaction isolation 设置为 serializable
-SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-## 2)开始事务，显示employees表中所有员工信息，观察记录的数目
-START TRANSACTION;
-SELECT COUNT(*) FROM employees;
-
--- 连接B尝试插入会被阻塞
-## 3)在另一个连接B中，在employees表插入一条记录，并提交事务，观察执行情况
--- INSERT INTO employees VALUES ('777777','测试3','本科','2000-01-01',1,1,'地址3','11223344','3');
-
--- 连接A
-## 4)在连接A中显示employees表的员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
-## 5)在连接A中提交事务；
-COMMIT;
-## 6)在连接A再次显示employees表中所有员工信息，观察记录的数目
-SELECT COUNT(*) FROM employees;
-```
-
-## 二、视图操作
-
-### 1. 创建视图
-
-```sql
-## (1)在 YGGL 数据库创建视图 ds_view，视图包含 Departments表的全部列
-CREATE VIEW ds_view AS
-SELECT * FROM Departments;
-## (2)在 YGGL 数据库创建视图 Employees_view，视图包含员工号码、姓名和实际收入
-CREATE VIEW Employees_view AS
-SELECT e.EmployeeID, e.Name, (s.InCome - s.OutCome) AS ActualIncome
-FROM Employees e JOIN Salary s ON e.EmployeeID = s.EmployeeID;
-```
-
-### 2. 查询视图
-
-```sql
-# 查询视图
-## (1)从视图 ds_view 中查询出部门号为 3 的部门名称
-SELECT DepartmentName FROM ds_view WHERE DepartmentID = '3';
-## (2)从视图 Employees_view 中查询出姓名为“王林”的员工的实际收入
-SELECT ActualIncome FROM Employees_view WHERE Name = '王林';
-```
+#### 6. 删除视图
+删除创建的视图
