@@ -1,101 +1,71 @@
- ```sql
- use test;
- ```
+# 实验五 上机练习
 
+## 一、实验目的
 
+巩固 SELECT 语句的各种用法,熟练掌握数据库查询操作
 
-1. **查询成绩表中的最高分和平均分**
-```sql
-SELECT MAX(score) AS 最高分, AVG(score) AS 平均分 FROM score;
-```
+## 二、数据库结构
 
-2. **查询学生的学号、姓名和出生日期，按院系编号降序**
-```sql
-SELECT id AS 学号, name AS 姓名, birthday AS 出生日期 
-FROM stu 
-ORDER BY departmentId DESC;
-```
+学生选课成绩数据库(XSCJ)包含以下 4 个表：
 
-3. **查询所有学生的学号、姓名和院系名**
-```sql
-SELECT stu.id AS 学号, stu.name AS 姓名, department.name AS 院系名 
-FROM stu 
-JOIN department ON stu.departmentId = department.id;
-```
+### XSB 学生表
 
-4. **查询参加高等数学课程考试的学生姓名和成绩**  
-```sql
-SELECT stu.name AS 姓名, score.score AS 考试成绩 
-FROM score 
-JOIN lesson ON score.LessonId = lesson.lessonid 
-JOIN stu ON score.stuId = stu.id 
-WHERE lesson.lessonName = '数学';
-```
+| 字段名 | 类型 | 长度 | 约束 | 含义 |
+|--------|------|------|------|------|
+| XH | char | 6 | 主键 | 学号 |
+| XM | char | 8 | 非空 | 姓名 |
+| XB | char | 2 | - | 性别 |
+| CSSJ | date | - | - | 出生时间 |
+| ZY | char | 12 | - | 专业 |
+| ZXF | tinyint | - | 默认0 | 总学分 |
+| BZ | varchar | 200 | - | 备注 |
 
-5. **查询每个学院的学生人数**
-```sql
-SELECT department.name AS 院系名, COUNT(stu.id) AS 学生人数 
-FROM department 
-LEFT JOIN stu ON department.id = stu.departmentId 
-GROUP BY department.id;
-```
+### KCB 课程表
 
-6. **查询平均分最高的前5名学生**
-```sql
-SELECT stu.id AS 学号, stu.name AS 姓名, AVG(score.score) AS 平均分 
-FROM stu 
-JOIN score ON stu.id = score.stuId 
-GROUP BY stu.id 
-ORDER BY 平均分 DESC 
-LIMIT 5;
-```
+| 字段名 | 类型 | 长度 | 约束 | 含义 |
+|--------|------|------|------|------|
+| KCH | char | 3 | 主键 | 课程号 |
+| KCM | char | 16 | 非空 | 课程名 |
+| KS | int | - | - | 总学时 |
+| XF | tinyint | - | - | 学分 |
 
-7. **查询总学分高于10分的学生**  
-（假设同一课程学分不重复累加）
-```sql
-SELECT stu.id AS 学号, stu.name AS 姓名, SUM(DISTINCT lesson.xf) AS 总学分 
-FROM stu 
-JOIN score ON stu.id = score.stuId 
-JOIN lesson ON score.LessonId = lesson.lessonid 
-GROUP BY stu.id 
-HAVING 总学分 > 10;
-```
+### CJB 成绩表
 
-8. **查询数学学院学生的成绩和等级，按成绩排序**  
-```sql
-SELECT stu.id AS 学号, stu.name AS 姓名, score.score AS 成绩, grade.grade AS 等级 
-FROM stu 
-JOIN score ON stu.id = score.stuId 
-JOIN department ON stu.departmentId = department.id 
-JOIN grade ON score.score BETWEEN grade.lowScore AND grade.highScore 
-WHERE department.id = '101' 
-ORDER BY score.score DESC;
-```
+| 字段名 | 类型 | 长度 | 约束 | 含义 |
+|--------|------|------|------|------|
+| XH | char | 6 | 主键,外键 | 学号 |
+| KCH | char | 3 | 主键,外键 | 课程号 |
+| CJ | tinyint | - | - | 成绩 |
 
-9. **查询数学学院学生的总学分，按学分排序**
-```sql
-SELECT stu.id AS 学号, stu.name AS 姓名, SUM(DISTINCT lesson.xf) AS 总学分 
-FROM stu 
-JOIN score ON stu.id = score.stuId 
-JOIN lesson ON score.LessonId = lesson.lessonid 
-WHERE stu.departmentId = '101' 
-GROUP BY stu.id 
-ORDER BY 总学分 DESC;
-```
+### JSB 教师表
 
-10. **查询英语成绩最高的学生及其所有成绩**  
-```sql
-SELECT stu.id AS 学号, stu.name AS 姓名, lesson.lessonName AS 课程, score.score AS 成绩, department.name AS 学院 
-FROM stu 
-JOIN score ON stu.id = score.stuId 
-JOIN lesson ON score.LessonId = lesson.lessonid 
-JOIN department ON stu.departmentId = department.id 
-WHERE stu.id = (
-    SELECT stuId 
-    FROM score 
-    JOIN lesson ON score.LessonId = lesson.lessonid 
-    WHERE lesson.lessonName = '英语' 
-    ORDER BY score.score DESC 
-    LIMIT 1
-);
-```
+| 字段名 | 类型 | 长度 | 约束 | 含义 |
+|--------|------|------|------|------|
+| JBH | char | 3 | 主键 | 教师编号 |
+| XM | char | 8 | 非空 | 姓名 |
+| XB | char | 2 | - | 性别 |
+| CSSJ | date | - | - | 出生时间 |
+| JBGZ | float | - | - | 基本工资 |
+| GWGZ | float | - | - | 岗位工资 |
+
+## 三、实验内容
+
+### 1. 查询 XSCJ 数据库 XSB 表中所有女同学的所有记录
+
+### 2. 查询 XSCJ 数据库 XSB 表中学生的姓名和学号,要求姓名列名改为 name,学号列名改为 number
+
+### 3. 查询 XSCJ 数据库 XSB 表中"计算机"专业学生的所有信息
+
+### 4. 查询 XSCJ 数据库 XSB 表中姓"王"同学的姓名和学号
+
+### 5. 查询 XSCJ 数据库 CJB 表中成绩在 70~85 之间的学生学号及课程号和成绩
+
+### 6. 查询 XSCJ 数据库 KCB 表中信息,先按学分升序排列,学分相同再按学时降序排列
+
+### 7. 查询 XSCJ 数据库中学号为"081111"的学生的学号、姓名、课程名、成绩
+
+### 8. 查询 XSCJ 数据库中比所有"计算机"专业学生年龄都小的学生信息
+
+### 9. 查询 XSCJ 数据库中所有学生学号、姓名及其选修的课程名及成绩
+
+### 10. 查询 XSCJ 数据库中所有选课学生的学号、选课门数和平均成绩
