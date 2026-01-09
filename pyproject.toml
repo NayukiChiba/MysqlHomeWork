@@ -1,0 +1,15 @@
+[project]
+name = "mysql-homework"
+version = "1.0.0"
+description = "MySQL 实验作业自动化脚本"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pymysql>=1.1.0",
+    "python-dotenv>=1.0.0",
+    "cryptography>=42.0.0",
+]
+
+[dependency-groups]
+dev = []
+
