@@ -30,7 +30,8 @@ DB_CONFIG = {
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', 'your_password'),
     'charset': os.getenv('DB_CHARSET', 'utf8mb4'),
-    'autocommit': False
+    'autocommit': False,
+    'ssl_disabled': True,  # 禁用 SSL
 }
 
 
