@@ -1,117 +1,70 @@
-### **用户管理**
+# 实验九 用户和权限管理
 
-1. **创建用户 user_1 和 user_2**
-   ```sql
-   CREATE USER 'user_1'@'localhost' IDENTIFIED BY '1234';
-   CREATE USER 'user_2'@'localhost' IDENTIFIED BY '1234';
-   ```
+## 一、实验目的
 
-2. **将 user_2 重命名为 user_3**
-   ```sql
-   RENAME USER 'user_2'@'localhost' TO 'user_3'@'localhost';
-   ```
+1. 掌握 MySQL 用户管理的方法
+2. 掌握 MySQL 权限管理的方法
+3. 掌握 MySQL 角色管理的方法
 
-3. **修改 user_3 的密码为 123456**
-   
-   ```sql
-   ALTER USER 'user_3'@'localhost' IDENTIFIED BY '123456';
-   ```
-   
-4. **删除 user_3**
-   ```sql
-   DROP USER 'user_3'@'localhost';
-   ```
+## 二、实验内容
 
-5. **以 user_1 登录并切换到 mydb 数据库**  
-   
-   ```bash
-   # 退出 MySQL，以 user_1 重新登录
-   mysql -u user_1 -p
-   ```
-   ```sql
-   CREATE DATABASE mydb;
-   USE mydb; -- 若 mydb 不存在会报错，建议替换为 USE yggl;
-   ```
+### 一、用户管理
+
+#### 1. 创建用户
+创建一个名为 `testuser` 的用户,设置密码为 `123456`,只允许从本地登录
+
+#### 2. 创建允许远程登录的用户
+创建一个名为 `remoteuser` 的用户,允许从任意主机登录
+
+#### 3. 修改用户密码
+修改 `testuser` 用户的密码为 `newpassword`
+
+#### 4. 重命名用户
+将 `testuser` 用户重命名为 `newuser`
+
+#### 5. 删除用户
+删除 `remoteuser` 用户
 
 ---
 
-### **权限管理**
-1. **授予 user_1 对 Employees 表的查询权限**
-   ```sql
-   GRANT SELECT ON yggl.Employees TO 'user_1'@'localhost';
-   ```
+### 二、权限管理
 
-2. **以 user_1 测试权限**  
-   - 查询数据（成功）：
-     ```sql
-     SELECT * FROM yggl.Employees;
-     ```
-   - 插入数据（失败，无 INSERT 权限）：
-     ```sql
-     INSERT INTO yggl.Employees VALUES ('999999', '测试', '本科', '2000-01-01', '男', 1, '地址', '123456', '1');
-     ```
+#### 1. 授予单个权限
+授予 `newuser` 用户对 yggl 数据库 Employees 表的 SELECT 权限
 
-3. **授予 user_1 更多权限并查看权限**
-   ```sql
-   GRANT INSERT, UPDATE, DELETE ON yggl.Employees TO 'user_1'@'localhost';
-   SHOW GRANTS FOR 'user_1'@'localhost';
-   ```
+#### 2. 授予多个权限
+授予 `newuser` 用户对 yggl 数据库 Employees 表的 INSERT、UPDATE、DELETE 权限
 
-4. **以 user_1 再次测试插入数据**  
-   （此时应成功）：
-   ```sql
-   INSERT INTO yggl.Employees VALUES ('999999', '测试', '本科', '2000-01-01', '男', 1, '地址', '123456', '1');
-   ```
+#### 3. 授予数据库级别权限
+授予 `newuser` 用户对 yggl 数据库的所有权限
 
-5. **撤销 user_1 的 SELECT 权限**
-   ```sql
-   REVOKE SELECT ON yggl.Employees FROM 'user_1'@'localhost';
-   ```
+#### 4. 授予全局权限
+授予 `newuser` 用户创建数据库的权限
 
-6. **以 user_1 测试查询（失败）**
-   ```sql
-   SELECT * FROM yggl.Employees; -- 无权限
-   ```
+#### 5. 查看用户权限
+查看 `newuser` 用户的所有权限
 
-7. **撤销 user_1 所有权限**
-   ```sql
-   REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'user_1'@'localhost';
-   ```
+#### 6. 撤销权限
+撤销 `newuser` 用户对 yggl 数据库 Employees 表的 DELETE 权限
+
+#### 7. 撤销所有权限
+撤销 `newuser` 用户的所有权限
 
 ---
 
-### **角色管理**
-1. **创建用户 user_3 和 user_4**
-   ```sql
-   CREATE USER 'user_3'@'localhost' IDENTIFIED BY '1234';
-   CREATE USER 'user_4'@'localhost' IDENTIFIED BY '1234';
-   ```
+### 三、角色管理
 
-2. **创建角色并授予权限**
-   ```sql
-   CREATE ROLE db_read, db_write;
-   GRANT SELECT ON yggl.* TO db_read;
-   GRANT INSERT, UPDATE, DELETE, SELECT ON yggl.* TO db_write;
-   ```
+#### 1. 创建角色
+创建一个名为 `readonly` 的角色
 
-3. **分配角色并激活**
-   ```sql
-   GRANT db_read TO 'user_3'@'localhost';
-   GRANT db_write TO 'user_4'@'localhost';
-   -- 激活角色（MySQL 8.0+）
-   SET DEFAULT ROLE ALL TO 'user_3'@'localhost', 'user_4'@'localhost';
-   ```
+#### 2. 为角色授权
+为 `readonly` 角色授予 yggl 数据库的 SELECT 权限
 
-4. **验证权限**
-   - **user_3**（仅 SELECT）：
-     ```sql
-     SELECT * FROM yggl.Employees; -- 成功
-     INSERT INTO yggl.Employees VALUES (...); -- 失败
-     ```
-   - **user_4**（可增删改查）：
-     ```sql
-     INSERT INTO yggl.Employees VALUES (...); -- 成功
-     ```
+#### 3. 将角色分配给用户
+将 `readonly` 角色分配给 `newuser` 用户
+
+#### 4. 删除角色
+删除 `readonly` 角色
 
 
 
