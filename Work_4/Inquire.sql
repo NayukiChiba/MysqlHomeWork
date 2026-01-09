@@ -1,6 +1,6 @@
 use yggl;
 # (1)
-# 查询每个员工的所有数据，查询Departments表和Salary表的所有数据
+# 查询每个员工的所有数据,查询Departments表和Salary表的所有数据
 SELECT * FROM Employees;
 SELECT * FROM Departments;
 SELECT * FROM Salary;
@@ -10,7 +10,7 @@ SELECT * FROM Salary;
 SELECT Name, Address, PhoneNumber FROM Employees;
 
 # (3)
-# 查询Employees表中的部门号和性别，消除重复行
+# 查询Employees表中的部门号和性别,消除重复行
 SELECT DISTINCT DepartmentID, Sex FROM Employees;
 
 # (4)
@@ -36,13 +36,13 @@ FROM Employees e
 WHERE d.DepartmentName = '财务部';
 
 # (8)
-# 查询女员工的地址和电话（标题设为“地址”和“电话”）
+# 查询女员工的地址和电话(标题设为“地址”和“电话”)
 SELECT Address AS 地址, PhoneNumber AS 电话
 FROM Employees
 WHERE Sex = '0';
 
 # (9)
-# 查询员工的姓名和性别（1显示“男”，0显示“女”）
+# 查询员工的姓名和性别(1显示“男”,0显示“女”)
 SELECT Name,
     CASE
        WHEN Sex = '1' THEN '男'

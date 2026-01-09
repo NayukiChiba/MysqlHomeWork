@@ -1,149 +1,74 @@
-1. **查询每个员工的所有数据，查询Departments表和Salary表的所有数据**  
-   
-   ```sql
-   SELECT * FROM Employees;
-   SELECT * FROM Departments;
-   SELECT * FROM Salary;
-   ```
-   
-2. **查询每个员工的姓名、地址和电话号码**  
-   
-   ```sql
-   SELECT Name, Address, PhoneNumber FROM Employees;
-   ```
-   
-3. **查询Employees表中的部门号和性别，消除重复行**  
-   
-   ```sql
-   SELECT DISTINCT DepartmentID, Sex FROM Employees;
-   ```
-   
-4. **查询EmployeeID为000001的员工地址和电话**  
-   
-   ```sql
-   SELECT Address, PhoneNumber FROM Employees WHERE EmployeeID = '000001';
-   ```
-   
-5. **查询月收入高于2000元的员工号、姓名和收入**  
-   
-   ```sql
-   SELECT e.EmployeeID, e.Name, s.InCome
-   FROM Employees e
-   JOIN Salary s ON e.EmployeeID = s.EmployeeID
-   WHERE s.InCome > 2000;
-   ```
-   
-6. **查询1970年以后出生的员工的姓名和住址**  
-   
-   ```sql
-   SELECT Name, Address FROM Employees WHERE Birthday > '1970-12-31';
-   ```
-   
-7. **查询财务部的所有员工的员工号和姓名**  
-   
-   ```sql
-   SELECT e.EmployeeID, e.Name
-   FROM Employees e
-   JOIN Departments d ON e.DepartmentID = d.DepartmentID
-   WHERE d.DepartmentName = '财务部';
-   ```
-   
-8. **查询女员工的地址和电话（标题设为“地址”和“电话”）**  
-   
-   ```sql
-   SELECT Address AS 地址, PhoneNumber AS 电话
-   FROM Employees
-   WHERE Sex = '0';
-   ```
-   
-9. **查询员工的姓名和性别（1显示“男”，0显示“女”）**  
-   
-   ```sql
-   SELECT Name,
-   CASE
-       WHEN Sex = '1' THEN '男'
-       WHEN Sex = '0' THEN '女'
-   END AS 性别
-   FROM Employees;
-   ```
-   
-10. **查询员工的姓名、住址和收入水平分类**  
-    
-    ```sql
-    SELECT e.Name, e.Address,
-    CASE
-        WHEN s.InCome < 2000 THEN '低收入'
-        WHEN s.InCome BETWEEN 2000 AND 3000 THEN '中等收入'
-        ELSE '高收入'
-    END AS 收入水平
-    FROM Employees e
-    JOIN Salary s ON e.EmployeeID = s.EmployeeID;
-    ```
-    
-11. **计算每个员工的实际收入**  
-    
-    ```sql
-    SELECT e.EmployeeID, e.Name, (s.InCome - s.OutCome) AS 实际收入
-    FROM Employees e
-    JOIN Salary s ON e.EmployeeID = s.EmployeeID;
-    ```
-    
-12. **获取员工人数**  
-    
-    ```sql
-    SELECT COUNT(*) AS 员工人数 FROM Employees;
-    ```
-    
-13. **计算月收入的平均值**  
-    
-    ```sql
-    SELECT AVG(InCome) AS 平均月收入 FROM Salary;
-    ```
-    
-14. **计算所有员工的总收入**  
-    
-    ```sql
-    SELECT SUM(InCome) AS 总收入 FROM Salary;
-    ```
-    
-15. **查询财务部员工的最高和最低实际收入**  
-    
-    ```sql
-    SELECT MAX(s.InCome - s.OutCome) AS 最高实际收入, MIN(s.InCome - s.OutCome) AS 最低实际收入
-    FROM Salary s
-    JOIN Employees e ON s.EmployeeID = e.EmployeeID
-    WHERE e.DepartmentID = '1';
-    ```
-    
-16. **查询姓“王”的员工的姓名和部门号**  
-    
-    ```sql
-    SELECT Name, DepartmentID FROM Employees WHERE Name LIKE '王%';
-    ```
-    
-17. **查询员工号倒数第二位为0的员工**  
-    
-    ```sql
-    SELECT EmployeeID, Name FROM Employees WHERE EmployeeID LIKE '%0_';
-    ```
-    
-18. **查询地址含“中山”的员工的ID和部门号**  
-    
-    ```sql
-    SELECT EmployeeID, DepartmentID FROM Employees WHERE Address LIKE '%中山%';
-    ```
-    
-19. **查询收入在2000~3000元的员工的ID和姓名**  
-    
-    ```sql
-    SELECT e.EmployeeID, e.Name
-    FROM Employees e
-    JOIN Salary s ON e.EmployeeID = s.EmployeeID
-    WHERE s.InCome BETWEEN 2000 AND 3000;
-    ```
-    
-20. **查询部门号为1或3的员工的ID和姓名**  
-    
-    ```sql
-    SELECT EmployeeID, Name FROM Employees WHERE DepartmentID IN ('1', '3');
-    ```
+# 实验四 数据库的查询
+
+## 一、实验目的
+
+1. 掌握使用 SELECT 语句进行基本查询的方法
+2. 掌握使用 SELECT 语句进行条件查询的方法
+3. 掌握使用 SELECT 语句进行排序的方法
+4. 掌握使用 SELECT 语句进行分组统计查询的方法
+5. 掌握使用 SELECT 语句进行连接查询的方法
+6. 掌握使用 SELECT 语句进行嵌套查询的方法
+
+## 二、实验内容
+
+以下操作都在 yggl 数据库中进行
+
+### 1. 查询所有员工的信息
+查询每个雇员的所有数据
+
+### 2. 查询指定列
+查询每个雇员的地址和电话
+
+### 3. 查询指定列和行
+查询 EmployeelD 为 000001 的雇员的地址和电话
+
+### 4. 使用别名
+查询 Employees 表中的员工号、姓名、性别使用 e.编号、e.名字、e.性别为各列重新命名
+
+### 5. 使用计算列
+计算每个雇员的实际收入
+
+### 6. 使用 distinct 去除重复行
+查询 Employees 表中各个部门编号(消除重复行)
+
+### 7. 使用多条件查询
+查询月收入高于 2000 元的员工号码
+
+### 8. 使用 between 查询
+查询 Employees 表中 1970 年以后出生的员工的姓名和住址
+
+### 9. 使用 like 模糊查询
+查询名字中有"伍"的员工的所有信息
+
+### 10. 使用 order by 排序
+按员工的出生日期先后顺序排序
+
+### 11. 使用 limit 限制查询结果数量
+查询收入最低的 3 名员工的情况
+
+### 12. 使用 group by 分组统计
+求各部门的雇员数
+
+### 13. 使用 having 过滤分组
+统计各部门年龄大于 40 岁的员工的人数(只统计人数超过 1 人的部门)
+
+### 14. 使用内连接查询
+查询员工姓名及其所在部门的名称
+
+### 15. 使用左外连接查询
+使用左外连接查询部门名称和各部门员工姓名
+
+### 16. 使用右外连接查询
+使用右外连接查询员工姓名和所在部门名称
+
+### 17. 使用子查询(in)
+使用子查询方式查询财务部员工的姓名
+
+### 18. 使用子查询(标量子查询)
+查询薪水大于平均薪水的员工
+
+### 19. 使用联合查询 UNION
+使用 UNION 合并两个查询结果
+
+### 20. 综合查询
+查询每个部门的部门名称、员工数量和平均工资(按平均工资降序排列)
